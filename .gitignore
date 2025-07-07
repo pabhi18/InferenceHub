@@ -1,0 +1,30 @@
+cat > .gitignore << 'EOF'
+# Helm
+*.tgz
+charts/
+.helmignore
+
+# Kubernetes
+*.kubeconfig
+kubeconfig*
+
+# Secrets
+*.secret
+*.key
+*.pem
+
+# Temporary files
+*.tmp
+*.log
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Environment files
+.env
+.env.local
+EOF
