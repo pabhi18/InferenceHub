@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: tgi-sa
+  namespace: model-1
+
+---
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: tgi-role
+  namespace: model-1
+rules:
+  - apiGroups: [""]
+    resources: ["pods", "pods/log", "services", "configmaps", "secrets", "persistentvolumeclaims"]
+    verbs: ["get", "list", "watch", "create", "update"]
+
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: tgi-rolebinding
+  namespace: model-1
+subjects:
+  - kind: ServiceAccount
+    name: tgi-sa
+    namespace: model-1
+roleRef:
+  kind: Role
+  name: tgi-role
+  apiGroup: rbac.authorization.k8s.io

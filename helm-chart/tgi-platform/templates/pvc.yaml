@@ -1,0 +1,14 @@
+apiVersion: apps/v1    
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "tgi-platform.fullname" . }}
+  labels:
+    {{- include "tgi-platform.labels" . | nindent 4 }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  volumeMode: Filesystem
+  resources:
+    requests:
+      storage: {{ .Values.storage.size | default "4Gi" }}
+  storageClassName: {{ .Values.storage.class | default "standard" }}
