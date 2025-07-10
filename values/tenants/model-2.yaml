@@ -1,0 +1,66 @@
+replicaCount: 1
+
+image:
+  repository: pabhi4881/hugging-tgi-app
+  tag: "latest"
+  pullPolicy: IfNotPresent
+
+env:
+  - name: MODEL_ID
+    value: "microsoft/DialoGPT-small"
+  - name: PORT
+    value: "8000"
+
+pvc:
+  size: "2Gi"
+  storageClass: "standard"
+  mountPath: "/root/.cache/huggingface"
+
+chatLogsPvc:
+  size: "1Gi"
+  storageClass: "standard"
+  mountPath: "/app"
+
+volumeMounts:
+  - name: model-cache
+    mountPath: /root/.cache/huggingface
+  - name: chat-logs
+    mountPath: /app
+
+volumes:
+  - name: model-cache
+    persistentVolumeClaim:
+      claimName: model-2-tgi-platform-storage
+  - name: chat-logs
+    persistentVolumeClaim:
+      claimName: model-2-tgi-platform-chat-logs
+
+resources:
+  limits:
+    cpu: "2"
+    memory: "4Gi"
+  requests:
+    cpu: "1"
+    memory: "2Gi"
+
+service:
+  type: ClusterIP
+  port: 8000
+
+serviceAccount:
+  create: true
+  name: model-2-tgi-platform
+
+livenessProbe:
+  httpGet:
+    path: /health
+    port: http
+  initialDelaySeconds: 10
+  periodSeconds: 10
+
+readinessProbe:
+  httpGet:
+    path: /health
+    port: http
+  initialDelaySeconds: 5
+  periodSeconds: 10

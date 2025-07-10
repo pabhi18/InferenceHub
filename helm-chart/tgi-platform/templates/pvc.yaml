@@ -1,7 +1,8 @@
-apiVersion: apps/v1    
+{{/* PVC for Hugging Face model cache */}}
+apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: {{ include "tgi-platform.fullname" . }}
+  name: {{ include "tgi-platform.fullname" . }}-storage
   labels:
     {{- include "tgi-platform.labels" . | nindent 4 }}
 spec:
@@ -10,5 +11,23 @@ spec:
   volumeMode: Filesystem
   resources:
     requests:
-      storage: {{ .Values.storage.size | default "4Gi" }}
-  storageClassName: {{ .Values.storage.class | default "standard" }}
+      storage: {{ .Values.pvc.size | default "4Gi" }}
+  storageClassName: {{ .Values.pvc.storageClass | default "standard" }}
+
+---
+
+{{/* PVC for chat logs */}}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "tgi-platform.fullname" . }}-chat-logs
+  labels:
+    {{- include "tgi-platform.labels" . | nindent 4 }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  volumeMode: Filesystem
+  resources:
+    requests:
+      storage: {{ .Values.chatLogsPvc.size | default "1Gi" }}
+  storageClassName: {{ .Values.chatLogsPvc.storageClass | default "standard" }}
