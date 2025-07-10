@@ -28,6 +28,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ./model-inference
+          file: ./model-inference/Dockerfile
           push: true
           tags: pabhi4881/hugging-tgi-app:latest 
           platforms: linux/amd64,linux/arm64
