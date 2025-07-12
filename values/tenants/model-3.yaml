@@ -3,13 +3,13 @@ replicaCount: 1
 image:
   repository: pabhi4881/hugging-tgi-app
   tag: "latest"
-  pullPolicy: IfNotPresent
+  pullPolicy: Always
 
 env:
   - name: MODEL_ID
     value: "google/flan-t5-small"
   - name: PORT
-    value: "8000"
+    value: "8080"
 
 pvc:
   size: "2Gi"
@@ -19,13 +19,13 @@ pvc:
 chatLogsPvc:
   size: "1Gi"
   storageClass: "standard"
-  mountPath: "/app"
+  mountPath: "/app/logs"
 
 volumeMounts:
   - name: model-cache
     mountPath: /root/.cache/huggingface
   - name: chat-logs
-    mountPath: /app
+    mountPath: /app/logs
 
 volumes:
   - name: model-cache
@@ -45,7 +45,7 @@ resources:
 
 service:
   type: ClusterIP
-  port: 8000
+  port: 8080
 
 serviceAccount:
   create: true
