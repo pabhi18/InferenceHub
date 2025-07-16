@@ -37,11 +37,11 @@ volumes:
 
 resources:
   limits:
+    cpu: "2"
+    memory: "4Gi"
+  requests:
     cpu: "1"
     memory: "2Gi"
-  requests:
-    cpu: "0.5"
-    memory: "1Gi"
 
 service:
   type: ClusterIP
@@ -50,6 +50,18 @@ service:
 serviceAccount:
   create: true
   name: model-1-tgi-platform
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+  hosts:
+    - host: model-1.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
 
 livenessProbe:
   httpGet:
