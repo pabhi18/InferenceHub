@@ -14,7 +14,7 @@ VALUES_FILE="values/tenants/$TENANT.yaml"
 RELEASE_NAME="$TENANT-tgi-platform"
 
 if [ ! -f "$VALUES_FILE" ]; then
-  echo "❌ Values file not found: $VALUES_FILE"
+  echo "Values file not found: $VALUES_FILE"
   exit 1
 fi
 
