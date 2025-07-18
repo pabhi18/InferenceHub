@@ -44,6 +44,6 @@ GitHub Actions workflow (`.github/workflows/deploy-docker.yaml`) builds and push
 
 ## Grafana Dashboard
 
-<a href="https://ibb.co/mrvpm3PM"><img src="https://i.ibb.co/Ng1RXMGH/Screenshot-2025-07-18-at-7-17-05-PM.png" alt="Screenshot-2025-07-18-at-7-17-05-PM" border="0"></a>
+<img src="./assets/dashboard.png" alt="Grafana Dashboard" width="800" height="500" />
 
 
