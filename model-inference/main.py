@@ -5,7 +5,12 @@ from datetime import datetime
 import sqlite3
 import os
 
+from prometheus_fastapi_instrumentator import Instrumentator
+
 app = FastAPI()
+
+instrumentator = Instrumentator()
+instrumentator.instrument(app).expose(app)
 
 conn = sqlite3.connect("chat_logs.db", check_same_thread=False)
 cursor = conn.cursor()

@@ -7,7 +7,7 @@ image:
 
 env:
   - name: MODEL_ID
-    value: "distilbert/distilgpt2"
+    value: "google/flan-t5-small"
   - name: PORT
     value: "8080"
 
@@ -45,7 +45,10 @@ resources:
 
 service:
   type: ClusterIP
-  port: 8080
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
 
 serviceAccount:
   create: true
@@ -66,7 +69,7 @@ ingress:
 livenessProbe:
   httpGet:
     path: /health
-    port: http
+    port: 8080
   initialDelaySeconds: 30
   timeoutSeconds: 3
   periodSeconds: 10
@@ -75,7 +78,7 @@ livenessProbe:
 readinessProbe:
   httpGet:
     path: /health
-    port: http
+    port: 8080
   initialDelaySeconds: 20
   timeoutSeconds: 3
   periodSeconds: 10

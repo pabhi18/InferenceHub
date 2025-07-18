@@ -1,0 +1,29 @@
+grafana:
+  enabled: true
+  service:
+    type: ClusterIP
+  ingress:
+    enabled: true
+    ingressClassName: nginx
+    annotations: {}
+    hosts:
+      - grafana.local
+    path: /
+    pathType: Prefix
+
+prometheus:
+  prometheusSpec:
+    service:
+      type: ClusterIP
+  ingress:
+    enabled: true
+    ingressClassName: nginx 
+    hosts:
+      - prometheus.local  
+    paths:
+      - /    
+    pathType: Prefix
+    annotations: {}
+    labels: {}
+      
+
