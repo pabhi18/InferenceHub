@@ -29,7 +29,7 @@ Kubernetes manifests for namespaces and storage classes.
 
 ### `helm/monitoring/`  
 Helm chart values for deploying the Prometheus and Grafana monitoring stack.  
-- Configures service and ingress for monitoring tools.
+- Configures service and ingress for monitoring tools
 
 ### `scripts/`  
 - `setup-cluster.sh`: Sets up namespaces, storage classes, and the NGINX ingress controller.  
