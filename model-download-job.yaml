@@ -1,0 +1,63 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: hf-model-import
+  namespace: minio
+spec:
+  backoffLimit: 1
+  template:
+    spec:
+      restartPolicy: Never
+
+      containers:
+        - name: model-importer
+          image: ubuntu:22.04
+
+          # 🔑 FIX 1: Memory + CPU (VERY IMPORTANT)
+          resources:
+            requests:
+              memory: "2Gi"
+              cpu: "2"
+            limits:
+              memory: "4Gi"
+              cpu: "4"
+
+          command:
+            - /bin/bash
+            - -c
+            - |
+              set -e
+
+              echo "Installing tools..."
+              apt-get update
+              apt-get install -y git git-lfs curl ca-certificates
+              git lfs install
+
+              echo "Installing MinIO client..."
+              curl -sSL https://dl.min.io/client/mc/release/linux-amd64/mc -o /usr/local/bin/mc
+              chmod +x /usr/local/bin/mc
+
+              echo "Cloning Hugging Face model..."
+              git clone https://huggingface.co/Qwen/Qwen2.5-Math-1.5B /workspace/model
+
+              echo "Configuring MinIO alias..."
+              mc alias set modelstore http://localhost:9001 "$MINIO_ACCESS_KEY" "$MINIO_SECRET_KEY"
+
+              echo "Uploading model to MinIO..."
+              mc cp --recursive /workspace/model modelstore/models/Qwen2.5-Math-1.5B
+
+              echo "Model upload completed."
+
+          env:
+            - name: MINIO_ACCESS_KEY
+              value: "minioadmin"
+            - name: MINIO_SECRET_KEY
+              value: "minioadmin123"
+
+          volumeMounts:
+            - name: workspace
+              mountPath: /workspace
+
+      volumes:
+        - name: workspace
+          emptyDir: {}

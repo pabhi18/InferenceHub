@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "vllm-platform.fullname" . }}
+  labels:
+    {{- include "vllm-platform.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "vllm-platform.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "vllm-platform.labels" . | nindent 8 }}
+    spec:
+      serviceAccountName: {{ include "vllm-platform.serviceAccountName" . }}
+
+      initContainers:
+        - name: download-model
+          image: minio/mc
+          command:
+            - /bin/sh
+            - -c
+            - |
+              set -e
+              mc alias set modelstore http://{{ .Values.minio.endpoint }} "$MINIO_ACCESS_KEY" "$MINIO_SECRET_KEY"
+              mkdir -p /models/{{ .Values.model.name }}
+              mc cp --recursive modelstore/models/{{ .Values.model.name }} /models/
+          env:
+            - name: MINIO_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: minio-secret
+                  key: accesskey
+            - name: MINIO_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: minio-secret
+                  key: secretkey
+          volumeMounts:
+            - name: model-volume
+              mountPath: /models
+
+      containers:
+        - name: vllm
+          image: vllm/vllm-openai:v0.13.0
+          imagePullPolicy: IfNotPresent
+          command: ["/bin/sh", "-c"]
+          args:
+            - "vllm serve /models/{{ .Values.model.name }} --host 0.0.0.0 --port {{ .Values.service.port }}"
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+          volumeMounts:
+            - name: model-volume
+              mountPath: /models
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+
+      volumes:
+        - name: model-volume
+          persistentVolumeClaim:
+            claimName: {{ include "vllm-platform.fullname" . }}-storage
+

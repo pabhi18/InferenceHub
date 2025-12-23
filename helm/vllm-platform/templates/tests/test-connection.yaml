@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ include "vllm-platform.fullname" . }}-test-connection"
+  labels:
+    {{- include "vllm-platform.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ['wget']
+      args: ['{{ include "vllm-platform.fullname" . }}:{{ .Values.service.port }}']
+  restartPolicy: Never

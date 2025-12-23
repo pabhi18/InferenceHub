@@ -1,10 +1,5 @@
 replicaCount: 1
 
-image:
-  repository: pabhi4881/hugging-tgi-app
-  tag: "latest"
-  pullPolicy: Always
-
 env:
   - name: MODEL_ID
     value: "EleutherAI/gpt-neo-125M"
@@ -14,26 +9,6 @@ env:
 pvc:
   size: "1Gi"
   storageClass: "standard"
-  mountPath: "/root/.cache/huggingface"
-
-chatLogsPvc:
-  size: "0.5Gi"
-  storageClass: "standard"
-  mountPath: "/app/logs"
-
-volumeMounts:
-  - name: model-cache
-    mountPath: /root/.cache/huggingface
-  - name: chat-logs
-    mountPath: /app/logs
-
-volumes:
-  - name: model-cache
-    persistentVolumeClaim:
-      claimName: model-2-tgi-platform-storage
-  - name: chat-logs
-    persistentVolumeClaim:
-      claimName: model-2-tgi-platform-chat-logs
 
 resources:
   requests:
@@ -51,34 +26,4 @@ service:
 
 serviceAccount:
   create: true
-  name: model-2-tgi-platform
-
-ingress:
-  enabled: true
-  className: nginx
-  annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
-  hosts:
-    - host: model-2.local
-      paths:
-        - path: /
-          pathType: Prefix
-  tls: []
-
-livenessProbe:
-  httpGet:
-    path: /health
-    port: 8080
-  initialDelaySeconds: 30
-  timeoutSeconds: 3
-  periodSeconds: 10
-  failureThreshold: 5
-
-readinessProbe:
-  httpGet:
-    path: /health
-    port: 8080
-  initialDelaySeconds: 20
-  timeoutSeconds: 3
-  periodSeconds: 10
-  failureThreshold: 5
+  name: vllm-platform

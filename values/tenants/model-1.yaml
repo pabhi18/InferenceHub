@@ -1,84 +1,35 @@
 replicaCount: 1
 
-image:
-  repository: pabhi4881/hugging-tgi-app
-  tag: "latest"
-  pullPolicy: Always
-
-env:
-  - name: MODEL_ID
-    value: "google/flan-t5-small"
-  - name: PORT
-    value: "8080"
-
-pvc:
-  size: "1Gi"
-  storageClass: "standard"
-  mountPath: "/root/.cache/huggingface"
-
-chatLogsPvc:
-  size: "0.5Gi"
-  storageClass: "standard"
-  mountPath: "/app/logs"
-
-volumeMounts:
-  - name: model-cache
-    mountPath: /root/.cache/huggingface
-  - name: chat-logs
-    mountPath: /app/logs
-
-volumes:
-  - name: model-cache
-    persistentVolumeClaim:
-      claimName: model-1-tgi-platform-storage
-  - name: chat-logs
-    persistentVolumeClaim:
-      claimName: model-1-tgi-platform-chat-logs
-
-resources:
-  requests:
-    cpu: "0.5"
-    memory: "1Gi"
-  limits:
-    cpu: "1"
-    memory: "2Gi"
-
-service:
-  type: ClusterIP
-  port: 8080
-  targetPort: 8080
-  name: http
+nameOverride: ""
+fullnameOverride: ""
 
 serviceAccount:
   create: true
-  name: model-1-tgi-platform
+  automount: true
+  annotations: {}
+  name: ""
 
-ingress:
-  enabled: true
-  className: nginx
-  annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
-  hosts:
-    - host: model-1.local
-      paths:
-        - path: /
-          pathType: Prefix
-  tls: []
+service:
+  type: ClusterIP
+  port: 8000
 
-livenessProbe:
-  httpGet:
-    path: /health
-    port: 8080
-  initialDelaySeconds: 30
-  timeoutSeconds: 3
-  periodSeconds: 10
-  failureThreshold: 5
+minio:
+  endpoint: "minio.minio.svc.cluster.local:9000"
+  accessKey: "minioadmin"
+  secretKey: "minioadmin123"
 
-readinessProbe:
-  httpGet:
-    path: /health
-    port: 8080
-  initialDelaySeconds: 20
-  timeoutSeconds: 3
-  periodSeconds: 10
-  failureThreshold: 5
+model:
+  name: "Qwen2.5-Math-1.5B"
+  pvcName: ""
+
+pvc:
+  size: "10Gi"
+  storageClass: "standard"
+
+resources:
+  limits:
+    cpu: "2"
+    memory: "4Gi"
+  requests:
+    cpu: "1"
+    memory: "2Gi"
