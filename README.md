@@ -1,49 +1,94 @@
-# InferenceHub
+# Tenant Deployment vLLM Platform
 
-InferenceHub is a platform designed to:  
-- Deploy multiple text generation models as independent services.  
-- Isolate each model in its own Kubernetes namespace for security and resource management.  
-- Provide a unified monitoring stack (Prometheus + Grafana) to track health, usage, and performance.  
-- Make deployments repeatable and configurable using Helm charts and values files.
+A Kubernetes-based **LLM inference platform** with GPU support, model management, and monitoring using vLLM, Istio, MinIO, Prometheus, and Grafana.
 
-## Project Structure & Flow
+---
 
-### `model-inference/`  
-Contains the FastAPI app (`main.py`) that serves text generation models using HuggingFace Transformers.  
-- The app exposes endpoints for generating text, health checks, and retrieving chat logs.  
-- Metrics are exported for Prometheus scraping.
+## Architecture
+<img src="./assets/architecture.svg" alt="Architecture Diagram" width="630" height="450" />
 
-### `helm/tgi-platform/`  
-Helm chart for deploying the inference service as a scalable, configurable Kubernetes workload.  
-- Supports persistent storage for model cache and chat logs.  
-- Ingress, service, probes, and resource settings are customizable per tenant.
-- Network Policies: Enforced strict traffic isolation for each tenant.
+---
 
-### `values/tenants/`  
-Tenant-specific Helm values files (e.g., `model-1.yaml`, `model-2.yaml`).  
-- Define which model to serve, resource limits, ingress hostnames, and storage settings for each tenant.
+## Overview
 
-### `infrastructure/`  
-Kubernetes manifests for namespaces and storage classes.  
-- Ensures each tenant and monitoring stack runs in its own namespace.
+This platform enables deployment and serving of LLM models on Kubernetes with:
 
-### `helm/monitoring/`  
-Helm chart values for deploying the Prometheus and Grafana monitoring stack.  
-- Configures service and ingress for monitoring tools
+- **GPU-accelerated inference** using vLLM  
+- **Centralized model storage** using MinIO  
+- **Web-based interaction** via Open WebUI  
+- **Observability** using Prometheus and Grafana  
+- **Secure traffic routing** via Istio Gateway  
 
-### `scripts/`  
-- `setup-cluster.sh`: Sets up namespaces, storage classes, and the NGINX ingress controller.  
-- `deploy-monitoring.sh`: Deploys the monitoring stack with a specified Grafana admin password.  
-- `deploy-tenant.sh`: Deploys a tenant's inference service using its values file.
+---
 
+## Key Components
 
-## CI/CD
+### 1. Istio Gateway
 
-GitHub Actions workflow (`.github/workflows/deploy-docker.yaml`) builds and pushes the inference Docker image to Docker Hub on changes.
+Entry point for all external traffic.
 
+Hosts:
+- `open-webui.*` → Open WebUI  
+- `grafana.*` → Grafana dashboards  
+- `minio-console.*` → MinIO console 
 
-## Grafana Dashboard
+---
 
-<img src="./assets/dashboard.png" alt="Grafana Dashboard" width="800" height="500" />
+### 2. Open WebUI
+
+Main web interface for interacting with the deployed LLM model.
+
+<img src="./assets/model-1.png" alt="Open WebUI MODEL 1" width="650" height="375" />
+
+<img src="./assets/model-2.png" alt="Open WebUI MODEL 2" width="650" height="375" />
 
 
+---
+
+### 3. Tenant Namespace (Single Deployment)
+
+Deployment runs in its **own namespace** with:
+
+- **vLLM Pod (GPU)**  
+  Runs the inference server on GPU-enabled nodes.
+
+- **Init Container**  
+  Downloads model files from MinIO during pod startup.
+
+- **Persistent Volume (PVC)**  
+  Stores downloaded model files to avoid re-downloading.
+
+- **Network Policies**  
+  Restrict traffic to only required services (WebUI, monitoring).
+
+---
+
+### 4. MinIO Storage
+
+Centralized object storage for LLM model artifacts.
+
+- Stores model weights
+- Used by init containers to fetch models
+
+<img src="./assets/minio.png" alt="Minio" width="650" height="375" />
+<img src="./assets/minio-model.png" alt="Minio Model" width="650" height="375" />
+
+---
+
+### 5. Monitoring
+
+- **Prometheus** collects metrics from nodes and workloads  
+- **Grafana** visualizes GPU, pod, and system performance  
+
+<img src="./assets/grafana.png" alt="Grafana" width="800" height="500" />
+
+---
+
+### 6. GPU Infrastructure
+
+- GPU nodes are used exclusively for inference workloads  
+- vLLM pods request GPUs via Kubernetes resource limits  
+
+<img src="./assets/gpu.png" alt="GPU Nodes" width="615" height="155" />
+
+---
