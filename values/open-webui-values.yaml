@@ -1,0 +1,43 @@
+replicaCount: 1
+
+image:
+  repository: ghcr.io/open-webui/open-webui
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 8080
+
+persistence:
+  enabled: true
+  size: 10Gi
+  storageClass: local-path
+
+resources:
+  requests:
+    cpu: 200m
+    memory: 512Mi
+  limits:
+    cpu: 1
+    memory: 1Gi
+
+ollama:
+  enabled: false
+
+ollamaUrls: []
+ollamaUrlsFromExtraEnv: false
+
+enableOpenaiApi: true
+
+openaiBaseApiUrl: ""
+
+openaiBaseApiUrls:
+  - "http://model-*-vllm-platform.model-*.svc.cluster.local:8000/v1"
+  - "dummy"
+
+extraEnvVars:
+  - name: OPENAI_API_BASE_URL
+    value: "http://model-*-vllm-platform.model-*.svc.cluster.local:8000/v1"
+  - name: OPENAI_API_KEY
+    value: "dummy"

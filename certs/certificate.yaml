@@ -1,0 +1,13 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: inferencehub-cert
+  namespace: istio-system
+spec:
+  secretName: inferencehub-certs
+  issuerRef:
+    name: letsencrypt-cloudflare
+    kind: ClusterIssuer
+  dnsNames:
+  - inferencehub.dpdns.org
+  - "*.inferencehub.dpdns.org"

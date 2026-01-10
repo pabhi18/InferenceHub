@@ -15,8 +15,6 @@ service:
 
 minio:
   endpoint: "minio.minio.svc.cluster.local:9000"
-  accessKey: "minioadmin"
-  secretKey: "minioadmin123"
 
 model:
   name: "Qwen2.5-Math-1.5B"
@@ -24,12 +22,22 @@ model:
 
 pvc:
   size: "10Gi"
-  storageClass: "standard"
+  storageClass: "local-path"
 
 resources:
   limits:
     cpu: "2"
-    memory: "4Gi"
+    memory: "6Gi"
+    nvidia.com/gpu: 1
   requests:
     cpu: "1"
-    memory: "2Gi"
+    memory: "4Gi"
+    nvidia.com/gpu: 1
+
+nodeSelector:
+  accelerator: nvidia
+
+tolerations:
+  - key: nvidia.com/gpu
+    operator: Exists
+    effect: NoSchedule

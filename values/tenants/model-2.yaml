@@ -1,29 +1,43 @@
 replicaCount: 1
 
-env:
-  - name: MODEL_ID
-    value: "EleutherAI/gpt-neo-125M"
-  - name: PORT
-    value: "8080"
-
-pvc:
-  size: "1Gi"
-  storageClass: "standard"
-
-resources:
-  requests:
-    cpu: "0.5"
-    memory: "1Gi"
-  limits:
-    cpu: "1"
-    memory: "2Gi"
-
-service:
-  type: ClusterIP
-  port: 8080
-  targetPort: 8080
-  name: http
+nameOverride: ""
+fullnameOverride: ""
 
 serviceAccount:
   create: true
-  name: vllm-platform
+  automount: true
+  annotations: {}
+  name: ""
+
+service:
+  type: ClusterIP
+  port: 8000
+
+minio:
+  endpoint: "minio.minio.svc.cluster.local:9000"
+
+model:
+  name: "gemma-2-2b-it"
+  pvcName: ""
+
+pvc:
+  size: "10Gi"
+  storageClass: "local-path"
+
+resources:
+  limits:
+    cpu: "2"
+    memory: "6Gi"
+    nvidia.com/gpu: 1
+  requests:
+    cpu: "1"
+    memory: "4Gi"
+    nvidia.com/gpu: 1
+
+nodeSelector:
+  accelerator: nvidia
+
+tolerations:
+  - key: nvidia.com/gpu
+    operator: Exists
+    effect: NoSchedule

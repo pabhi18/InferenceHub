@@ -28,3 +28,6 @@ kubeconfig*
 .env
 .env.local
 EOF
+
+minio-secrets-value.yaml
+*.bak

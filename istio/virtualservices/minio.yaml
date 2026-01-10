@@ -1,0 +1,19 @@
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: minio-virtualservice
+  namespace: minio
+spec:
+  hosts:
+  - minio.inferencehub.dpdns.org
+  gateways:
+  - istio-system/inferencehub-gateway
+  http:
+  - match:
+    - uri:
+        prefix: /
+    route:
+    - destination:
+        host: minio.minio.svc.cluster.local
+        port:
+          number: 9000

@@ -1,0 +1,25 @@
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: inferencehub-gateway
+  namespace: istio-system
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+  - port:
+      name: https
+      number: 443
+      protocol: HTTPS
+    hosts:
+    - "*.inferencehub.dpdns.org"
+    tls:
+      mode: SIMPLE
+      credentialName: inferencehub-certs
+
+  - port:
+      name: http
+      number: 80
+      protocol: HTTP
+    hosts:
+    - "*.inferencehub.dpdns.org"

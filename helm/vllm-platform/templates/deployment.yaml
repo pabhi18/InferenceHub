@@ -4,17 +4,31 @@ metadata:
   name: {{ include "vllm-platform.fullname" . }}
   labels:
     {{- include "vllm-platform.labels" . | nindent 4 }}
+
 spec:
   replicas: {{ .Values.replicaCount }}
+
   selector:
     matchLabels:
       {{- include "vllm-platform.selectorLabels" . | nindent 6 }}
+
   template:
     metadata:
       labels:
-        {{- include "vllm-platform.labels" . | nindent 8 }}
+        {{- include "vllm-platform.selectorLabels" . | nindent 8 }}
+
     spec:
       serviceAccountName: {{ include "vllm-platform.serviceAccountName" . }}
+
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | nindent 8 }}
+      {{- end }}
+
+      {{- with .Values.tolerations }}
+      tolerations:
+{{ toYaml . | nindent 8 }}
+      {{- end }}
 
       initContainers:
         - name: download-model
@@ -24,6 +38,7 @@ spec:
             - -c
             - |
               set -e
+              [ -d "/models/{{ .Values.model.name }}" ] && exit 0
               mc alias set modelstore http://{{ .Values.minio.endpoint }} "$MINIO_ACCESS_KEY" "$MINIO_SECRET_KEY"
               mkdir -p /models/{{ .Values.model.name }}
               mc cp --recursive modelstore/models/{{ .Values.model.name }} /models/
@@ -48,7 +63,7 @@ spec:
           imagePullPolicy: IfNotPresent
           command: ["/bin/sh", "-c"]
           args:
-            - "vllm serve /models/{{ .Values.model.name }} --host 0.0.0.0 --port {{ .Values.service.port }}"
+            - "vllm serve /models/{{ .Values.model.name }} --host 0.0.0.0 --port {{ .Values.service.port }} --disable-log-requests "
           ports:
             - name: http
               containerPort: {{ .Values.service.port }}
