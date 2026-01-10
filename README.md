@@ -1,11 +1,11 @@
-# Tenant Deployment vLLM Platform
+# Tenant Based Deployment with vLLM
 
-A Kubernetes-based **LLM inference platform** with GPU support, model management, and monitoring using vLLM, Istio, MinIO, Prometheus, and Grafana.
+A Kubernetes-based **LLM inference deployment** with GPU support, model management, and monitoring using vLLM, Istio, MinIO, Prometheus, and Grafana.
 
 ---
 
 ## Architecture
-<img src="./assets/architecture.svg" alt="Architecture Diagram" width="630" height="450" />
+<img src="./assets/architecture.svg" alt="Architecture Diagram" width="800" height="570" />
 
 ---
 
@@ -38,9 +38,9 @@ Hosts:
 
 Main web interface for interacting with the deployed LLM model.
 
-<img src="./assets/model-1.png" alt="Open WebUI MODEL 1" width="650" height="375" />
+<img src="./assets/model-1.png" alt="Open WebUI MODEL 1" width="800" height="500" />
 
-<img src="./assets/model-2.png" alt="Open WebUI MODEL 2" width="650" height="375" />
+<img src="./assets/model-2.png" alt="Open WebUI MODEL 2" width="800" height="500" />
 
 
 ---
@@ -70,8 +70,8 @@ Centralized object storage for LLM model artifacts.
 - Stores model weights
 - Used by init containers to fetch models
 
-<img src="./assets/minio.png" alt="Minio" width="650" height="375" />
-<img src="./assets/minio-model.png" alt="Minio Model" width="650" height="375" />
+<img src="./assets/minio.png" alt="Minio" width="800" height="500" />
+<img src="./assets/minio-model.png" alt="Minio Model" width="800" height="500" />
 
 ---
 
@@ -89,6 +89,6 @@ Centralized object storage for LLM model artifacts.
 - GPU nodes are used exclusively for inference workloads  
 - vLLM pods request GPUs via Kubernetes resource limits  
 
-<img src="./assets/gpu.png" alt="GPU Nodes" width="615" height="155" />
+<img src="./assets/gpu.png" alt="GPU Nodes" width="800" height="210" />
 
 ---
